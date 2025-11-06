@@ -1,5 +1,9 @@
 from items import *
 
+shovel=None
 
-shovel = ShovelItem("Wooden")
+def init(world):
+    global shovel
+
+    shovel = ShovelItem(world, "Wooden")
 

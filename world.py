@@ -1,44 +1,60 @@
 import numpy
 from console import *
 import itemList
-
+from chunk import CHUNK_SIZE, SPRITE_SIZE, generateChunk
+from blocks import grass_block
 
 class World:
     def __init__(self, window):
         self.chunks     = dict()
         self.window     = window
-        self.console    = Console(window, [])
+        self.console    = Console(self)
+        itemList.init(self)
         self.itemList   = itemList
 
-    def draw(self, position, offset):
+    def draw(self, position, drawOffset):
+        chunkPosition = self.get_chunkpos(position)
+
+        inChunkPos = position[0]%CHUNK_SIZE, position[1]%CHUNK_SIZE
+        globalChunkOffset = ((-inChunkPos[0]+CHUNK_SIZE/2)*SPRITE_SIZE, (-inChunkPos[1]+CHUNK_SIZE/2)*SPRITE_SIZE)
+        
+        inChunkPos = list(inChunkPos)
+
+        inChunkPos[0]-=int(numpy.ceil(CHUNK_SIZE/2))
+        inChunkPos[1]-=int(numpy.ceil(CHUNK_SIZE/2))
+        
+        try: inChunkPos[0]/=abs(inChunkPos[0])
+        except:pass
+        try: inChunkPos[1]/=abs(inChunkPos[1])
+        except:pass
         
         '''
-        position = self.get_chunkpos(position)
-        inChunkPos = position[0]%CHUNK_SIZE, position[1]%CHUNK_SIZE
+            
+            There is sooooooo much lines omg
 
-        offset = (CHUNK_SIZE/2*SPRITE_SIZE-inChunkPos[0]*SPRITE_SIZE,
-                CHUNK_SIZE/2*SPRITE_SIZE-inChunkPos[1]*SPRITE_SIZE)
-       
-        i = CHUNK_SIZE*SPRITE_SIZE
         '''
 
-        self.chunks[position].draw(offset)
-        '''
-        self.chunks[(position[0]+1, position[1]  )].draw((offset[0]+i, offset[1]  ), window)
-        self.chunks[(position[0]  , position[1]+1)].draw((offset[0]  , offset[1]+i), window)
-        self.chunks[(position[0]+1, position[1]+1)].draw((offset[0]+i, offset[1]+i), window)
-        self.chunks[(position[0]-1, position[1]  )].draw((offset[0]-i, offset[1]  ), window)
-        self.chunks[(position[0]  , position[1]-1)].draw((offset[0]  , offset[1]-i), window)
-        self.chunks[(position[0]-1, position[1]-1)].draw((offset[0]-i, offset[1]-i), window)
-        self.chunks[(position[0]+1, position[1]-1)].draw((offset[0]+i, offset[1]-i), window)
-        self.chunks[(position[0]-1, position[1]+1)].draw((offset[0]-i, offset[1]+i), window)
-        '''
+        self.get_chunk(chunkPosition).draw((int(drawOffset[0]+globalChunkOffset[0]), int(drawOffset[1]+globalChunkOffset[1])))
+        if (inChunkPos[0]): self.get_chunk((chunkPosition[0]+int(inChunkPos[0]), chunkPosition[1])).draw((drawOffset[0]+globalChunkOffset[0]+inChunkPos[0]*(CHUNK_SIZE*SPRITE_SIZE), drawOffset[1]+globalChunkOffset[1]))
+        if (inChunkPos[1]): self.get_chunk((chunkPosition[0], chunkPosition[1]+int(inChunkPos[1]))).draw((drawOffset[0]+globalChunkOffset[0], drawOffset[1]+globalChunkOffset[1]+inChunkPos[1]*(CHUNK_SIZE*SPRITE_SIZE)))
+        if (inChunkPos[0] and inChunkPos[1]): self.get_chunk((chunkPosition[0]+int(inChunkPos[0]), chunkPosition[1]+int(inChunkPos[1]))).draw((drawOffset[0]+globalChunkOffset[0]+inChunkPos[0]*(CHUNK_SIZE*SPRITE_SIZE), drawOffset[1]+globalChunkOffset[1]+inChunkPos[1]*(CHUNK_SIZE*SPRITE_SIZE)))
+#        self.chunks[chunkPosition].draw(drawOffset)
+#        self.console.draw(drawOffset)
 
-    '''
+    
+    def get_chunk(self, position):
+        chunk = None
+        try:
+            chunk = self.chunks[tuple(position)]
+        except:
+            self.chunks[tuple(position)] = generateChunk(self, grass_block)
+            chunk = self.chunks[tuple(position)]
+        return chunk
+
     def get_chunkpos(self, position):
-        return (int(numpy.floor(position[0]/CHUNK_SIZE) if position[0]>=0 else numpy.ceil(position[0]/CHUNK_SIZE)),
-                int(numpy.floor(position[1]/CHUNK_SIZE) if position[1]>=0 else numpy.ceil(position[1]/CHUNK_SIZE)))
-    '''
+        return (int(numpy.floor(position[0]/CHUNK_SIZE)),
+                int(numpy.floor(position[1]/CHUNK_SIZE)))
+
 
     def update(self, position):
         self.chunks[position].update()

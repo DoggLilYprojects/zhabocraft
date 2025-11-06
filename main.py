@@ -24,15 +24,18 @@ def generateChunk(w):
 
 WORLD = World(window)
 WORLD.chunks[(0,0)] = generateChunk(WORLD)
+WORLD.chunks[(0,1)] = generateChunk(WORLD)
 PLAYER = Player(WORLD, [0,0], "HE_MEDBED", "HE_MEDBED.png")
 
 while True:
     clock.tick(60)
+    window.fill((0,0,0))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()
     WORLD.update(PLAYER.last_chunk)
-    WORLD.draw(PLAYER.last_chunk, (256, 0))
+    WORLD.draw(PLAYER.position, (256, 0))
+    pygame.draw.rect(window, (0,0,0), (0,0,256,768))
     PLAYER.inventory.draw()
     pygame.display.update()

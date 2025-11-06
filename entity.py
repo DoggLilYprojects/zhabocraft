@@ -4,6 +4,7 @@ import numpy
 import pygame
 import textDrawer
 from inventory import *
+from random import randint
 
 def generateChunk(w):
     blocks = numpy.zeros((CHUNK_SIZE, CHUNK_SIZE), dtype=object)
@@ -24,8 +25,8 @@ class Entity:
         
     
     def get_chunkpos(self, position):
-        return (int(numpy.floor(position[0]/CHUNK_SIZE) if position[0]>=0 else numpy.floor(position[0]/CHUNK_SIZE)),
-                int(numpy.floor(position[1]/CHUNK_SIZE) if position[1]>=0 else numpy.floor(position[1]/CHUNK_SIZE)))
+        return (int(numpy.floor(position[0]/CHUNK_SIZE)),
+                int(numpy.floor(position[1]/CHUNK_SIZE)))
     def draw(self, offset):
         pass
 
@@ -38,10 +39,9 @@ class Entity:
 
     def change_chunk(self, new_chunk):
         del self.world.chunks[self.last_chunk].entities[self]
-        try: self.world.chunks[new_chunk].entities[self] = self
-        except:
-            self.world.chunks[new_chunk] = generateChunk(self.world)
-            self.world.chunks[new_chunk].entities[self] = self
+
+        self.world.get_chunk(new_chunk).entities[self] = self
+
         self.last_chunk = new_chunk
 
     def generateChunks(self, centerChunk, around=2):
@@ -64,6 +64,7 @@ class Entity:
 '''
 
 class Player(Entity):
+
     def __init__(self, world, position, name, skin):
         super().__init__(world, position, 10)
         self.name = name
@@ -75,18 +76,21 @@ class Player(Entity):
         self.inventory.slots[0][0] = self.world.itemList.shovel
 
     def draw(self, offset):
-        self.spritePosition[0] += ((self.position[0]%CHUNK_SIZE)*SPRITE_SIZE-self.spritePosition[0])/3
-        self.spritePosition[1] += ((self.position[1]%CHUNK_SIZE)*SPRITE_SIZE-self.spritePosition[1])/3
-        self.world.window.blit(self.skin, (self.spritePosition[0]+offset[0], self.spritePosition[1]+offset[1]))
+        '''
+        self.spritePosition[0] += ((self.position[0])*SPRITE_SIZE-self.spritePosition[0])/3 if abs(self.spritePosition[0]-self.position[0])>1 else ((self.position[0])*SPRITE_SIZE-self.spritePosition[0]) 
+        self.spritePosition[1] += ((self.position[1])*SPRITE_SIZE-self.spritePosition[1])/3 if abs(self.spritePosition[1]-self.position[1])>1 else ((self.position[1])*SPRITE_SIZE-self.spritePosition[1]) 
+        '''
+        
+        self.world.window.blit(self.skin, (self.position[0]*SPRITE_SIZE%(CHUNK_SIZE*SPRITE_SIZE)+offset[0], self.position[1]*SPRITE_SIZE%(CHUNK_SIZE*SPRITE_SIZE)+offset[1]))
         if (self._selection != [0,0]):
-            pygame.draw.rect(self.world.window, (255,255,255), (self.spritePosition[0]+self._selection[0]*SPRITE_SIZE+offset[0],
-                                                    self.spritePosition[1]+self._selection[1]*SPRITE_SIZE+offset[1],
+            pygame.draw.rect(self.world.window, (255,255,255), (self.position[0]*SPRITE_SIZE+self._selection[0]*SPRITE_SIZE+offset[0],
+                                                    self.position[1]*SPRITE_SIZE+self._selection[1]*SPRITE_SIZE+offset[1],
                                                     SPRITE_SIZE,
                                                     SPRITE_SIZE), 2)
+#        print("drawwed", randint(0,9))
 
-    def move(self):
+    def keyMove(self, keys):
         self._selection[:] = [0,0]
-        keys = pygame.key.get_pressed()
         xdir = keys[pygame.K_d] - keys[pygame.K_a]
         ydir = keys[pygame.K_s] - keys[pygame.K_w]
         if (self._lastPressed and (abs(xdir) or abs(ydir))): return
@@ -100,14 +104,29 @@ class Player(Entity):
             self.world.console.logs.append(f"<{self.name}> from {last} to {new_chunk}")
 
         self._lastPressed = abs(xdir) or abs(ydir)
-        if (keys[pygame.K_SPACE]):
-            self.placeBlock(keys[pygame.K_RIGHT]-keys[pygame.K_LEFT], keys[pygame.K_DOWN]-keys[pygame.K_UP])
 
+    def update(self):
+        keys = pygame.key.get_pressed()
+        self.keyMove(keys)
+
+        # !!!!!!!!!!!!!!!!!!!!!!! TODO complite this mouse stuff maybe :P
+        '''
+        mouseX, mouseY  = pygame.mouse.get_pos()
+        selectedX       = int(numpy.floor((max(0, mouseX-256))/SPRITE_SIZE))
+        selectedY       = int(numpy.floor(mouseY/SPRITE_SIZE)
+        '''
+        
+        self._selection[:] = [keys[pygame.K_RIGHT]-keys[pygame.K_LEFT],keys[pygame.K_DOWN]-keys[pygame.K_UP]]
+
+        if (keys[pygame.K_SPACE]):
+            self.inventory.rightClicked(self.position[0]+self._selection[0], self.position[1]+self._selection[1])
+#            self.placeBlock(keys[pygame.K_RIGHT]-keys[pygame.K_LEFT], keys[pygame.K_DOWN]-keys[pygame.K_UP])
+'''
     def placeBlock(self, dx, dy):
         self._selection[:] = [dx, dy]
-        pos = self.truePosition()
-        self.world.chunks[self.last_chunk].blocks[(pos[1]+self._selection[1])%CHUNK_SIZE][(pos[0]+self._selection[0])%CHUNK_SIZE] = duck
-
+        position = self.position[0]+self._selection[0], self.position[1]+self._selection[1]
+        self.world.chunks[self.get_chunkpos(position)].blocks[position[1]%CHUNK_SIZE][position[0]%CHUNK_SIZE] = duck
+'''
 
 
 

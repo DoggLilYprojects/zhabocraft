@@ -1,5 +1,6 @@
 import pygame
 import numpy
+#from blocks import grass_block
 
 CHUNK_SIZE  = 16
 SPRITE_SIZE = 48
@@ -32,3 +33,11 @@ class Block:
         self.spritepath = spritepath
         self.sprite = pygame.transform.scale(pygame.image.load(spritepath), (SPRITE_SIZE, SPRITE_SIZE))
         self.durability = durability
+
+
+def generateChunk(w, block):
+    blocks = numpy.zeros((CHUNK_SIZE, CHUNK_SIZE), dtype=object)
+    for y in range(CHUNK_SIZE):
+        for x in range(CHUNK_SIZE):
+            blocks[y][x] = block
+    return Chunk(blocks, w)

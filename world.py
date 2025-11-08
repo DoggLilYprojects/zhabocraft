@@ -1,15 +1,17 @@
 import numpy
 from console import *
 import itemList
+import items
 from chunk import CHUNK_SIZE, SPRITE_SIZE, generateChunk
-from blocks import grass_block
+import blockList
 
 class World:
     def __init__(self, window):
         self.chunks     = dict()
         self.window     = window
         self.console    = Console(self)
-        itemList.init(self)
+        self.blockList  = blockList
+        items.world     = self
         self.itemList   = itemList
 
     def draw(self, position, drawOffset):
@@ -47,7 +49,7 @@ class World:
         try:
             chunk = self.chunks[tuple(position)]
         except:
-            self.chunks[tuple(position)] = generateChunk(self, grass_block)
+            self.chunks[tuple(position)] = generateChunk(self, self.blockList.grass)
             chunk = self.chunks[tuple(position)]
         return chunk
 

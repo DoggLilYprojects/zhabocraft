@@ -1,18 +1,18 @@
 from chunk import *
-from blocks import *
+#from blocks import *
 import numpy
 import pygame
 import textDrawer
 from inventory import *
 from random import randint
-
+'''
 def generateChunk(w):
     blocks = numpy.zeros((CHUNK_SIZE, CHUNK_SIZE), dtype=object)
     for y in range(CHUNK_SIZE):
         for x in range(CHUNK_SIZE):
             blocks[y][x] = grass_block
     return Chunk(blocks, w)
-
+'''
 
 class Entity:
     def __init__(self, world, position, health):
@@ -21,7 +21,7 @@ class Entity:
         self.last_chunk  = self.get_chunkpos(position)
         self.health         = health
         self.maxhealth      = health
-        self.world.chunks[self.last_chunk].entities[self] = self
+        self.world.get_chunk(self.last_chunk).entities[self] = self
         
     
     def get_chunkpos(self, position):
@@ -31,14 +31,19 @@ class Entity:
         pass
 
     def move(self):
-        pass
+        new_chunk = self.get_chunkpos(self.position)
+
+        if self.last_chunk != new_chunk:
+            last = self.last_chunk
+            self.change_chunk(new_chunk)
+            #self.world.console.logs.append(f"<{self.name}> from {last} to {new_chunk}")
 
     def update(self):
         self.move()
         #self.generateChunks(self.last_chunk)
 
     def change_chunk(self, new_chunk):
-        del self.world.chunks[self.last_chunk].entities[self]
+        del self.world.get_chunk(self.last_chunk).entities[self]
 
         self.world.get_chunk(new_chunk).entities[self] = self
 
@@ -73,7 +78,7 @@ class Player(Entity):
         self._selection = [0, 0]
         self.spritePosition = [position[0]%CHUNK_SIZE*SPRITE_SIZE, position[1]%CHUNK_SIZE*SPRITE_SIZE]
         self.inventory = Inventory(self)
-        self.inventory.slots[0][0] = self.world.itemList.shovel
+        self.inventory.pickup(self.world.itemList.planks)        
 
     def draw(self, offset):
         '''
@@ -96,13 +101,13 @@ class Player(Entity):
         if (self._lastPressed and (abs(xdir) or abs(ydir))): return
         self.position[0]+=xdir
         self.position[1]+=ydir
+
         new_chunk = self.get_chunkpos(self.position)
 
         if self.last_chunk != new_chunk:
             last = self.last_chunk
             self.change_chunk(new_chunk)
             self.world.console.logs.append(f"<{self.name}> from {last} to {new_chunk}")
-
         self._lastPressed = abs(xdir) or abs(ydir)
 
     def update(self):
@@ -128,7 +133,21 @@ class Player(Entity):
         self.world.chunks[self.get_chunkpos(position)].blocks[position[1]%CHUNK_SIZE][position[0]%CHUNK_SIZE] = duck
 '''
 
+class TestEntity(Entity):
+    def __init__(self,world,position,health):
+        super().__init__(world, position, health)
+        self.sprite = pygame.transform.scale(pygame.image.load("sprites//HE_MEDBED.png"), (SPRITE_SIZE, SPRITE_SIZE))
+        self.counter = 0
 
+    def draw(self, offset):
+        self.world.window.blit(self.sprite, (self.position[0]*SPRITE_SIZE%(CHUNK_SIZE*SPRITE_SIZE)+offset[0], self.position[1]*SPRITE_SIZE%(CHUNK_SIZE*SPRITE_SIZE)+offset[1]))
+
+    def move(self):
+        self.counter+=1
+        self.counter%=10
+        if self.counter != 0: return
+        self.position[0]+=1
+        super().move()
 
 
 

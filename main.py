@@ -1,7 +1,7 @@
 import pygame
 import numpy
-from entity import Player
-from blocks import grass_block
+from entity import Player, TestEntity
+#from blocks import grass_block
 from chunk import *
 from world import *
 from console import *
@@ -14,18 +14,19 @@ pygame.display.set_caption("ZhaboCraft")
 
 clock = pygame.time.Clock()
 
-
+'''
 def generateChunk(w):
     blocks = numpy.zeros((CHUNK_SIZE, CHUNK_SIZE), dtype=object)
     for y in range(CHUNK_SIZE):
         for x in range(CHUNK_SIZE):
             blocks[y][x] = grass_block
     return Chunk(blocks, w)
+'''
 
 WORLD = World(window)
-WORLD.chunks[(0,0)] = generateChunk(WORLD)
-WORLD.chunks[(0,1)] = generateChunk(WORLD)
 PLAYER = Player(WORLD, [0,0], "HE_MEDBED", "HE_MEDBED.png")
+TEST = TestEntity(WORLD, [0,1], 10)
+
 
 while True:
     clock.tick(60)

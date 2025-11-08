@@ -1,5 +1,6 @@
 import numpy
 import pygame
+from items import *
 
 INVENTORY_RATIO = (3, 5)
 DRAW_SIZE = 51
@@ -26,6 +27,20 @@ class Inventory:
             for x in range(self.slots.shape[1]):
                 if self.slots[y][x] == obj:
                     self.slots[y][x] = None
+
+    def pickup(self, item):
+        isItemStackable = isinstance(item, StackableItem)
+        for row in range(self.slots.shape[0]):
+            for column in range(self.slots.shape[1]):
+                slotItem = self.slots[row][column]
+                if slotItem == None:
+                    self.slots[row][column]=item
+                    return True
+                if slotItem.name == item.name and isItemStackable and isinstance(slotItem, StackableItem):
+                    slotItem.count+=item.count
+                    return True
+
+        return False
 
     def draw(self):
         for y in range(self.slots.shape[0]):

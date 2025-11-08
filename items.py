@@ -1,11 +1,10 @@
 import pygame
 import numpy
 from chunk import CHUNK_SIZE
-from blocks import duck
 
 class Item:
-    def __init__(self, world, name):
-        self.world  = world
+    world=None
+    def __init__(self, name):
         self.name   = name
         self.sprite = pygame.image.load(f"sprites//{name}.png")
     
@@ -20,6 +19,11 @@ class Item:
                 int(numpy.floor(position[1]/CHUNK_SIZE)))
 
 # !!!!!!!!!!!!!!! TODO Breakable Items
+
+class StackableItem(Item):
+    def __init__(self, name, count=1):
+        super().__init__(name)
+        self.count=1
 
 '''
     def kill(self):
@@ -36,9 +40,11 @@ class BreakableItem(Item):
             self.kill()
 '''
 
+'''
 class ShovelItem(Item):
     def __init__(self, world, shovelType):
         super().__init__(world, f"{shovelType} shovel")
 
     def rightClicked(self, xWorldPos, yWorldPos):
         self.world.chunks[self.get_chunkpos((xWorldPos, yWorldPos))].blocks[yWorldPos%CHUNK_SIZE][xWorldPos%CHUNK_SIZE] = duck
+'''

@@ -25,15 +25,6 @@ class Chunk:
 
     def screenPosition(self, x, y, offset):
         return (x*SPRITE_SIZE+offset[0], y*SPRITE_SIZE+offset[1])
-    
-
-
-class Block:
-    def __init__(self, spritepath, durability=10):
-        self.spritepath = spritepath
-        self.sprite = pygame.transform.scale(pygame.image.load(f"sprites//{spritepath}"), (SPRITE_SIZE, SPRITE_SIZE))
-        self.durability = durability
-
 
 def generateChunk(w, block):
     blocks = numpy.zeros((CHUNK_SIZE, CHUNK_SIZE), dtype=object)

@@ -1,4 +1,4 @@
-from chunk import Block
+from block import *
 
 stone           = Block("stone.png", 35)
 wooden_box      = Block("wooden_box.png", 10)

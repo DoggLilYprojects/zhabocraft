@@ -5,14 +5,8 @@ import pygame
 import textDrawer
 from inventory import *
 from random import randint
-'''
-def generateChunk(w):
-    blocks = numpy.zeros((CHUNK_SIZE, CHUNK_SIZE), dtype=object)
-    for y in range(CHUNK_SIZE):
-        for x in range(CHUNK_SIZE):
-            blocks[y][x] = grass_block
-    return Chunk(blocks, w)
-'''
+
+
 
 class Entity:
     def __init__(self, world, position, health):
@@ -78,14 +72,19 @@ class Player(Entity):
         self._selection = [0, 0]
         self.spritePosition = [position[0]%CHUNK_SIZE*SPRITE_SIZE, position[1]%CHUNK_SIZE*SPRITE_SIZE]
         self.inventory = Inventory(self)
-        self.inventory.pickup(self.world.itemList.planks)        
 
+        self.inventory.pickup(self.world.itemList.planks)
+        self.inventory.pickup(self.world.itemList.wooden_box)
+        self.inventory.pickup(self.world.itemList.tree)
+        self.inventory.pickup(self.world.itemList.planks)
     def draw(self, offset):
-        '''
-        self.spritePosition[0] += ((self.position[0])*SPRITE_SIZE-self.spritePosition[0])/3 if abs(self.spritePosition[0]-self.position[0])>1 else ((self.position[0])*SPRITE_SIZE-self.spritePosition[0]) 
-        self.spritePosition[1] += ((self.position[1])*SPRITE_SIZE-self.spritePosition[1])/3 if abs(self.spritePosition[1]-self.position[1])>1 else ((self.position[1])*SPRITE_SIZE-self.spritePosition[1]) 
-        '''
-        
+        #TODO fix this smooth animation problem
+        '''         
+        self.spritePosition[0] += ((self.position[0])*SPRITE_SIZE-self.spritePosition[0])/3
+        self.spritePosition[1] += ((self.position[1])*SPRITE_SIZE-self.spritePosition[1])/3
+        self.spritePosition[0] = int(numpy.ceil(self.spritePosition[0] * 100) / 100)
+        self.spritePosition[1] = int(numpy.ceil(self.spritePosition[1] * 100) / 100)
+        '''        
         self.world.window.blit(self.skin, (self.position[0]*SPRITE_SIZE%(CHUNK_SIZE*SPRITE_SIZE)+offset[0], self.position[1]*SPRITE_SIZE%(CHUNK_SIZE*SPRITE_SIZE)+offset[1]))
         if (self._selection != [0,0]):
             pygame.draw.rect(self.world.window, (255,255,255), (self.position[0]*SPRITE_SIZE+self._selection[0]*SPRITE_SIZE+offset[0],

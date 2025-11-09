@@ -6,12 +6,12 @@ class Item:
     world=None
     def __init__(self, name):
         self.name   = name
-        self.sprite = pygame.image.load(f"sprites//{name}.png")
-    
-    def rightClicked(self, xWorldPos, yWorldPos):
-        pass
+        self.durability = 1
+        self.count = 1
+        try:self.sprite = pygame.image.load(f"sprites//{name}.png")
+        except:self.sprite = None
 
-    def leftClicked(self, xWorldPos, yWorldPos):
+    def use(self, itemStack, xWorldPos, yWorldPos):
         pass
 
     def get_chunkpos(self, position):

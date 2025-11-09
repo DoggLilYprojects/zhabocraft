@@ -12,6 +12,9 @@ spacew = textimg(" ").get_width()
 def draw_regular_text(window, text, position):
     window.blit(textimg(text), position)
 
+
+#TODO finish this text function
+'''
 def draw_boundered_text(window, text, position, bounder):
     list = text.split()
     W = 0
@@ -27,3 +30,5 @@ def draw_boundered_text(window, text, position, bounder):
         else:
             window.blit(img, (W, position[1]))
             W += img.get_width()+spacew
+'''
+
